@@ -141,10 +141,10 @@
 Khi bị mất kết nối (ra ngoài phạm vi, sóng yếu nhiễu, ...) hoặc ngắt kết nối (người dùng tự Disconnect, lỏng dây nguồn, ...) Bluetooth, xe phải dừng hết tất cả mọi hoạt động lại.
 
 Khi mới bắt đầu kết nối giữa App và Bluetooth. Đây là nội dung đầu tiên JDY nhận được. Cũng như trước khi bị ngắt kết nối hoàn toàn:
->+CONNECTING<<1C:42:7D:96:84:A2\r\n
+>+CONNECTING<<xx:xx:xx:xx:xx:xx\r\n
 >
 >CONNECTED\r\r\n
 >
->SSS....D+DISC:SUCCESS\r\r\n
+>SSS...SSSD+DISC:SUCCESS\r\r\n
 
 Có thể thấy, trước khi ngắt kết nối hoàn toàn, App sẽ gửi kí tự 'D' và loạt thông tin phía sau. Mình cần xử lý các chuỗi thông tin này, để khi App bắt đầu đi vào hoạt động sẽ nhận đúng các dữ liệu cần thiết mà thôi!
