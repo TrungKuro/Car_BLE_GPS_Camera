@@ -9,14 +9,14 @@
 > - Mọi nơi trên Trái Đất
 > - Liên tục suốt 24 giờ
 >
-> @ Đặc biệt, kết nối GPS thì **không phụ thuộc gì vào Internet** cả.
+> @ Đặc biệt, kết nối GPS **không phụ thuộc vào Internet**.
 
 ## Nguyên lý hoạt động
 
-> - **PHÁT:** Các vệ tinh GPS bay vòng quanh Trái Đất hai lần trong một ngày theo một quỹ đạo rất chính xác và phát tín hiệu có thông tin xuống Trái Đất.
-> - **THU:** Các máy thu GPS nhận thông tin này và bằng **phép  tính lượng giác** tính được chính xác vị trí của người dùng.
+> - **BỘ PHÁT:** Các vệ tinh GPS bay vòng quanh Trái Đất hai lần trong một ngày theo một quỹ đạo rất chính xác và phát tín hiệu có thông tin xuống Trái Đất.
+> - **BỘ THU:** Các máy thu GPS nhận thông tin này và bằng **phép  tính lượng giác**, từ đó tính được chính xác vị trí của người dùng.
 >
-> `Bản chất của GPS` là *so sánh thời gian* tín hiệu được phát đi từ vệ tinh với thời gian nhận được chúng (tức giữa PHÁT và THU).
+> `Bản chất của GPS` là *so sánh thời gian* tín hiệu được phát đi từ vệ tinh với thời gian nhận được chúng (tức giữa BỘ PHÁT và BỘ THU).
 >
 > `Độ sai lệch thời gian` cho biết máy thu GPS cách vệ tinh bao xa. Với nhiều quãng đường đo được tới nhiều vệ tinh máy thu có thể tính được vị trí của người dùng và hiển thị lên bản đồ điện tử của máy.
 
@@ -160,7 +160,7 @@
 > Để chuyển từ DM hoặc DMS sang DD, ta có công thức sau: *"Số ĐỘ cộng với số PHÚT chia cho 60, cộng với số giây chia cho 3600"*.
 > - `DD = d + (m/60) + (s/3600)`
 >
-> DMS là định dạng phổ biến nhất, và là tiêu chuẩn trên tất cả các biểu đồ và bản đồ, cũng như hệ định vị toàn cầu và hệ thông tin địa lý.
+> **DMS** là định dạng phổ biến nhất, và là tiêu chuẩn trên tất cả các biểu đồ và bản đồ, cũng như hệ định vị toàn cầu và hệ thông tin địa lý.
 >
 > Ngoài ra, Vĩ độ và Kinh độ được đo bằng độ thay vì các đơn vị đo lường tuyệt đối (như `dặm` hoặc `km`), vì trái đất có hình cầu.
 >
@@ -182,7 +182,7 @@
 >
 > **Kinh độ:**
 > - Là phép đo khoảng cách của một điểm về phía `Đông (East)` hoặc `Tây (West)` của đường tưởng tượng chạy dọc từ giữa trái đất từ cực Bắc đến cực Nam, gọi là `Kinh tuyến gốc (Prime Meridian)`.
-> - Kinh tuyến đối diện với kinh tuyến gốc ở phía bên kia trái đất được gọi là kinh tuyến nghịch.
+> - Kinh tuyến đối diện với kinh tuyến gốc ở phía bên kia trái đất được gọi là **Kinh tuyến nghịch**.
 > - Các kinh tuyến là một loạt các đường chạy dọc từ cực Bắc xuống cực Nam.
 > - Có 360 kinh tuyến ở cả hai bên kinh tuyến gốc, trong đó có 180 kinh tuyến đông và 180 kinh tuyến tây
 >
@@ -203,7 +203,7 @@
 
 > **NMEA** viết tắt của *"National Marine Electronics Association" – Hiệp hội Điện tử hàng hải Quốc gia*.
 >
-> NMEA là định dạng dữ liệu tiêu chuẩn hỗ trợ cho tất cả các thiết bị nhận tín hiệu GPS.
+> **NMEA** là định dạng dữ liệu tiêu chuẩn hỗ trợ cho tất cả các thiết bị nhận tín hiệu GPS.
 >
 > Cấu trúc của một **NMEA Message** gồm có:
 > - **14 Output Messages:** chứa nhiều dữ liệu mà thiết bị nhận GPS thu được từ vệ tinh như thời gian, vị trí tọa độ, số lượng vệ tinh trong vùng quan sát, độ cao, cường độ tín hiệu, ...
@@ -212,23 +212,26 @@
 > **Output Messages:**
 > - Các *"Output Messages"* phân biệt với nhau dựa theo các *"Header"* được đặt sau ký tự `$`.
 > - Có *"14 loại Header"* tương ứng với 14 Output Messages.
-> - Chúng ta chỉ cần quan tâm đến *"3 loại Header"* có chứa tọa độ vị trí: `GPGGA`, `GPRMC` và `GPGLL`.
+> - Chúng ta chỉ cần quan tâm đến *"3 loại Header"* có chứa tọa độ vị trí: `__GGA`, `__RMC` và `__GLL`.
 
 ### [Tiêu chuẩn NMEA](https://en.wikipedia.org/wiki/NMEA_0183):
 
 > **Cấu trúc Messages:**
-> - Tất cả dữ liệu được truyền là các ký tự [ASCII](https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/ASCII-Table-wide.svg/2560px-ASCII-Table-wide.svg.png) *"có thể in được"* **từ 0x20 đến 0x7E**.
-> - `$` (0x24) - Start Delimiter - Bắt đầu tin nhắn.
-> - `\r\n` (0x0D 0x0A) - [Carriage return + Line feed] - Eend Delimiter - Kết thúc tin nhắn.
-> - **5 ký tự** tiếp theo xác định *"Talker"* **(2 ký tự)** và *"Type of Message"* **(3 ký tự)**.
-> - Tất cả các *"Data Field"* theo sau được phân cách bằng dấu `,` (0x2C). Khi không có dữ liệu, trường tương ứng sẽ để trống.
-> - Ký tự đầu tiên ngay sau ký tự cuối của *"Data Field"* cuối cùng là dấu `*`, nhưng nó chỉ được bao gồm nếu **Checksum** được cung cấp, được biểu thị dưới dạng *"số HEX có 2 chữ số"*.
+>
+> Tất cả dữ liệu được truyền là các ký tự [ASCII](https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/ASCII-Table-wide.svg/2560px-ASCII-Table-wide.svg.png) *"có thể in được"* **từ 0x20 đến 0x7E**.
+>
+> 1. `$` (0x24) - Start Delimiter - Bắt đầu tin nhắn.
+> 2. **5 ký tự** tiếp theo xác định *"Talker"* **(2 ký tự)** và *"Type of Message"* **(3 ký tự)**.
+> 3. Tất cả các *"Data Field"* theo sau được phân cách bằng dấu `,` (0x2C). Khi không có dữ liệu, trường tương ứng sẽ để trống.
+> 4. Ký tự đầu tiên ngay sau ký tự cuối của *"Data Field"* cuối cùng là dấu `*`, nhưng nó chỉ được bao gồm nếu **Checksum** được cung cấp, được biểu thị dưới dạng *"số HEX có 2 chữ số"*.
+> 5. `\r\n` (0x0D 0x0A) - [Carriage return + Line feed] - Eend Delimiter - Kết thúc tin nhắn.
 >
 > **Talker:** ID bao gồm...
 > - `BD` hoặc `GB` - Bắc Đẩu
 > - `GA` - Galileo
 > - `GP` - GPS
 > - `GL` - GLONASS
+> - `GN` - ???
 >
 > **Type of Message:** chủ yếu gồm các loại...
 > - `GGA` - **Global Positioning System** Fixed Data.
@@ -327,8 +330,3 @@
 > - `$PCAS10,3*1F` : **Factory Settings** - Xóa tất cả dữ liệu trong *"Bộ nhớ"* và đặt lại *"Bộ Thu"* về cấu hình mặc định của nhà sản xuất.
 >
 > **CAS11:** Cài đặt mô hình chuyển động của *"Bộ Thu"*.
-
->
->
->
->

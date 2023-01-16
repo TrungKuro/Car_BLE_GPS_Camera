@@ -1,3 +1,15 @@
+/* Code này cũng test với thư viện "TinyGPSPlus"
+** Tuy nhiên lần này là kết nối với thiết bị GPS thực tế
+**
+** Trong đoạn code này, dữ liệu GPS mà mình quan tâm là [Kinh độ & Vĩ độ]
+** Code nó có qua 2 lớp kiểm tra
+**
+** Thứ nhất, nếu sau 5s mà vẫn chưa nhận được bất kì kí tự nào từ GPS để xử lý
+** Chương trình sẽ báo "NONE"
+**
+** Thứ hai, nếu đã nhận được data GPS truyền đến rồi
+** Nó sẽ xử lý data. Tuy nhiên, nếu data ko hợp lệ, chương trình sẽ báo "INVALID"
+*/
 #include <TinyGPSPlus.h>
 #include <SoftwareSerial.h>
 
@@ -26,9 +38,9 @@ void loop()
     if (gps.encode(ss.read()))
       displayInfo();
 
-  if (millis() > 15000 && gps.charsProcessed() < 10)
+  if (millis() > 5000 && gps.charsProcessed() < 10)
   {
-    Serial.println(F("No GPS detected: check wiring."));
+    Serial.print(F("NONE;")); // No GPS detected: check wiring.
     while (true)
       ;
   }
@@ -45,7 +57,7 @@ void displayInfo()
   }
   else
   {
-    Serial.print(F("INVALID;"));
+    Serial.print(F("INVALID;")); // Giá trị nhận được ko hợp lệ.
   }
 
   Serial.println();

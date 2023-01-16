@@ -88,11 +88,13 @@
 >
 > ---
 >
-> +CONNECTING<<xx:xx:xx:xx:xx:xx\r\n
+> **+CONNECTING<<xx:xx:xx:xx:xx:xx\r\n**
 >
-> CONNECTED\r\r\n
+> **CONNECTED\r\r\n**
 >
-> SSS...SSSD+DISC:SUCCESS\r\r\n
+> `SSS...SSSD`
+>
+> **+DISC:SUCCESS\r\r\n**
 >
 > ---
 

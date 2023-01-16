@@ -8,7 +8,7 @@
 
 /* -------------- DEBUG (uncomment to open the Debug function) ------------- */
 
-// #define ENABLE_DEBUG
+#define ENABLE_DEBUG
 
 #if defined(ENABLE_DEBUG)
 #define Debug Serial

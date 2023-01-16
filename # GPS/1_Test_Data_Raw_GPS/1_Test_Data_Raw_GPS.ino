@@ -1,6 +1,6 @@
-/* Cung cấp các ký tự cho đối tượng TinyGPSPlus
-** Từ một thiết bị GPS NMEA "nối tiếp"
-** Nhưng ví dụ này sử dụng các CHUỖI TĨNH để cho đơn giản
+/* Code này test với thư viện "TinyGPSPlus"
+** Thư viện này dùng với thiết bị GPS NMEA chuẩn giao thức "nối tiếp"
+** Ở ví dụ này, sử dụng các CHUỖI TĨNH (mẫu thử) để cho đơn giản
 */
 #include <TinyGPSPlus.h>
 
