@@ -15,26 +15,34 @@ TinyGPSPlus gps;                      // Tạo đối tượng "TinyGPSPlus"
 SoftwareSerial myGPS(RX_GPS, TX_GPS); // Giao tiếp giữa Arduino với GPS
 
 /* Serial - Giao tiếp giữa Arduino với Bluetooth */
-char blue = 0;       // Biến nhận dữ liệu qua bluetooth
-bool enable = false; // Cho phép hoặc ko xử lý dữ liệu nhận được
-String data = "";    // Để xử lý các thông tin dạng văn bản
+char blue = 0;          // Biến nhận dữ liệu qua bluetooth
+bool enableBLE = false; // Cho phép hoặc ko xử lý dữ liệu nhận được
+String dataBLE = "";    // Để xử lý các thông tin dạng văn bản
 
 /*
 ** "speed" là tốc độ quay Motor, đơn vị %, với độ phân giải 10%
 ** "power" là công suất cấp cho Motor, đơn vị ~pwm, từ 0 - 255
 */
-// byte speed = 50; // Biến nhận giá trị tốc độ, mặc định mới khởi động là 50%
-byte power = POWER_50_PER; // Biến cung cấp công suất cho Motor
+byte power = POWER_50_PER; // Biến cung cấp công suất cho Motor, mặc định mới khởi động tốc độ là 50%
 
-bool ledFront = false;
-bool ledBack = false;
-bool buzzer = false;
+/*
+** Các biến cho biết trạng thái làm việc của LED và Còi
+** Mặc định khi khởi động tất cả thiết bị này đều tắt
+*/
+bool ledFront = false; // LED trước đang tắt
+bool ledBack = false;  // LED sau đang tắt
+bool buzzer = false;   // Còi đang tắt
 
-/* Các biến thực hiện chức năng cảnh báo! */
-bool warning = false;
-bool half = true;
-unsigned long now;    // Unit (ms)
-#define ONE_CYCLE 500 // Unit (ms)
+/* Các biến thực hiện chức năng "cảnh báo" !!! */
+bool modeWarn = false; // Đang tắt chức năng "cảnh báo" !!!
+bool halfCycle = true;
+unsigned long now;          // Unit (ms)
+#define TIME_HALF_CYCLE 500 // Unit (ms)
+
+/* Các biến thực hiện chức năng "Emulator GPS" */
+bool emuGPS = false;          // Tắt chế độ giả lập GPS
+float emuLatGPS = 10.773323;  // Giá trị ảo "vĩ độ" gốc
+float emuLngGPS = 106.656741; // Giá trị ảo "kinh độ" gốc
 
 /* ------------------------------------------------------------------------- */
 /*                                   CONFIG                                  */
@@ -42,25 +50,31 @@ unsigned long now;    // Unit (ms)
 
 void setup()
 {
+  /* Bắt đầu kênh GPS */
   myGPS.begin(BAUD_GPS);
+
+  /* Bắt đầu kênh Bluetooth */
   Serial.begin(BAUD_BLE);
 
+  /* Tạo kết nối Motor, và dừng tất cả Motor */
   pinMode(MOTOR_R_IN1, OUTPUT);
   pinMode(MOTOR_R_IN2, OUTPUT);
   pinMode(MOTOR_L_IN3, OUTPUT);
   pinMode(MOTOR_L_IN4, OUTPUT);
+  //
+  stop_car();
 
+  /* Tạo kết nối LED, và tắt tất cả LED */
   pinMode(LED_FRONT_LEFT, OUTPUT);
   pinMode(LED_FRONT_RIGHT, OUTPUT);
   pinMode(LED_BACK_LEFT, OUTPUT);
   pinMode(LED_BACK_RIGHT, OUTPUT);
-
-  pinMode(BUZZER, OUTPUT);
-
-  // power = convert_speed_to_power(speed);
-
+  //
   turn_off_LED_front();
   turn_off_LED_back();
+
+  /* Tạo kết nối Còi, và tắt Còi */
+  pinMode(BUZZER, OUTPUT);
   turn_off_buzzer();
 }
 
@@ -84,7 +98,20 @@ void processedGPS()
   }
 }
 
-/* ------------------------------------------------------------------------- */
+void emulatorGPS()
+{
+  // Thay đổi giá trị GPS hiện tại (ngẫu nhiên)
+  emuLatGPS += (random(0, 51) / 1000000.0);
+  emuLngGPS += (random(0, 51) / 1000000.0);
+
+  // Gửi giá trị GPS giả lập mới này đi
+  Serial.print(emuLatGPS, 6);
+  Serial.print(F(","));
+  Serial.print(emuLngGPS, 6);
+  Serial.print(F(";"));
+
+  delay(1000);
+}
 
 void processedBLE()
 {
@@ -121,8 +148,6 @@ void processedBLE()
   case 'J':
     back_right_forward(power);
     break; // Xe đi lùi về phía phải
-
-    // speed = (?); power = convert_speed_to_power(speed);
 
   case '0':
     power = POWER_0_PER;
@@ -186,18 +211,17 @@ void processedBLE()
     break; // Tắt còi xe
 
   case 'X':
-    warning = true;
+    modeWarn = true;
     now = millis();
     break; // Bật cảnh báo
   case 'x':
-    warning = false;
-    half = true;
+    modeWarn = false;
+    halfCycle = true;
     (ledFront) ? (turn_on_LED_front()) : (turn_off_LED_front());
     (ledBack) ? (turn_on_LED_back()) : (turn_off_LED_back());
     (buzzer) ? (turn_on_buzzer()) : (turn_off_buzzer());
     break; // Tắt cảnh báo
 
-  /* Stop All */
   case 'D':
     stop_car();
     turn_off_LED_front();
@@ -206,8 +230,13 @@ void processedBLE()
     ledBack = false;
     turn_off_buzzer();
     buzzer = false;
-    warning = false;
-    enable = false;
+    modeWarn = false;
+    enableBLE = false;
+    break; // Stop All
+
+  /* Command ? */
+  case '$':
+    enableBLE = false; // Tạm thời tắt chức năng điều khiển xe, để nhận lệnh CMD
   }
 }
 
@@ -218,11 +247,18 @@ void processedBLE()
 void loop()
 {
   /* XỬ LÝ DỮ LIỆU TỪ GPS */
-  while (myGPS.available())
+  if (emuGPS)
   {
-    if (gps.encode(myGPS.read()))
+    emulatorGPS(); // Đang trong chế độ giả lập GPS
+  }
+  else
+  {
+    while (myGPS.available())
     {
-      processedGPS(); // Hàm xử lý data GPS
+      if (gps.encode(myGPS.read()))
+      {
+        processedGPS(); // Hàm xử lý data GPS
+      }
     }
   }
 
@@ -231,41 +267,66 @@ void loop()
   {
     blue = Serial.read();
 
-    if (enable)
+    if (enableBLE)
     {
       processedBLE(); // Hàm xử lý data BLE
     }
     else
     {
-      data += blue;
+      dataBLE += blue;
 
       if (blue == '\n') // Chỉ xét 'data' mỗi khi gặp kí tự kết thúc này
       {
-        if (data == "CONNECTED\r\r\n")
+        /* Quá trình kết nối BLE thành công */
+        if (dataBLE == "CONNECTED\r\r\n")
         {
-          enable = true;
+          enableBLE = true; // Bắt đầu có thể nhận lệnh điều khiển xe
         }
-        data = "";
+
+        /* Lệnh CMD - gửi giá trị tốc độ hiện tại của xe */
+        if (dataBLE == "speed\n")
+        {
+          Serial.print(convert_power_to_speed(power));
+          enableBLE = true; // Quay lại chế độ nhận lệnh điều khiển xe
+        }
+
+        /* Lệnh CMD - vào chế độ giả lập GPS */
+        if (dataBLE == "enterGPS\n")
+        {
+          emuGPS = true;
+        }
+
+        /* Lệnh CMD - thoát chế độ giả lập GPS */
+        if (dataBLE == "exitGPS\n")
+        {
+          emuGPS = false;
+          enableBLE = true; // Quay lại chế độ nhận lệnh điều khiển xe
+        }
+
+        dataBLE = "";
       }
     }
   }
 
   /* XỬ LÝ CHẠY ĐỒNG BỘ ĐÈN, CÒI, MOTOR */
-  if (warning && (millis() - now >= ONE_CYCLE))
+  if (modeWarn)
   {
-    now = millis();
+    if (millis() - now >= TIME_HALF_CYCLE)
+    {
+      now = millis();
 
-    if (half)
-    {
-      turn_on_LED_front();
-      turn_on_buzzer();
-      half = false;
-    }
-    else
-    {
-      turn_off_LED_front();
-      turn_off_buzzer();
-      half = true;
+      if (halfCycle)
+      {
+        turn_on_LED_front();
+        turn_on_buzzer();
+        halfCycle = false;
+      }
+      else
+      {
+        turn_off_LED_front();
+        turn_off_buzzer();
+        halfCycle = true;
+      }
     }
   }
 

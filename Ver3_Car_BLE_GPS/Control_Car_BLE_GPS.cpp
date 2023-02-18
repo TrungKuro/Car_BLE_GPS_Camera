@@ -1,16 +1,22 @@
 #include "Control_Car_BLE_GPS.h"
 
-/* ------------------ Hàm chuyển đổi Tốc độ sang Công suất ----------------- */
+/* ----------------- Hàm chuyển đổi công suất thành tốc độ ----------------- */
 
-/* speed - 0   power - 0
-** --------- = --------- <=> power = 2,55 * speed
-**  100 - 0     255 - 0
-**
-*/
-// byte convert_speed_to_power(byte speed)
-// {
-//   return map(speed, 0, 100, 0, 255);
-// }
+String convert_power_to_speed(byte power)
+{
+  /**
+   *         100 * power
+   * speed = -----------
+   *             255
+   */
+  byte speed = 100 * power / 255;
+
+  String reply = F("SPEED,");
+  reply += String(speed);
+  reply += F(";");
+
+  return reply;
+}
 
 /* ------------------------ Hàm điều khiển LED trước ----------------------- */
 

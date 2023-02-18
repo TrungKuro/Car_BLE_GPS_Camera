@@ -10,7 +10,19 @@
 
 > ...
 
-### Phone (App) ↦ Car (Uno)
+### Phone (App) == Bluetooth ==> Car (Uno)
+
+> **Quy ước gói dữ liệu từ App gửi xuống:**
+>
+> Mỗi **lệnh CMD** riêng lẻ được gửi ở định dạng `$cmd\n`, trong đó:
+> - `$` là kí tự bắt đầu lệnh.
+> - *"cmd"* là nội dung lệnh CMD.
+> - `\n` là kí tự kết thúc lệnh, mã HEX (0x0A).
+>
+> Đây là danh sách các **lệnh CMD** hiện có ở phiên bản hiện tại:
+> - `$speed\n`.
+> - `$enterGPS\n`.
+> - `$exitGPS\n`.
 
 > **Điều khiển các hướng xe di chuyển.**
 > - Button UP : `F` - Forward
@@ -41,7 +53,7 @@
 > - Speed 90% : `9`
 > - Speed 100% : `q`
 >
-> Ở lần kết nối Bluetooth đầu tiên, hoặc những lần kết nối lại. App nên gửi lệnh `$speed;` để nhận được thông số **Speed** *"tốc độ"* mà đang thiết lập trên xe.
+> Ở lần kết nối Bluetooth đầu tiên, hoặc những lần kết nối lại. App nên gửi lệnh `$speed\n` để nhận được thông số **Speed** *"tốc độ"* mà đang thiết lập trên xe.
 
 > **Điều khiển đèn xe phía trước.**
 > - Front Lights On : `W`
@@ -67,21 +79,21 @@
 >
 > Ở chế độ này, khi [nhấn] các nút *"Điều khiển các hướng xe di chuyển"*, nó sẽ gửi kí tự của nút đó 1 lần.
 >
-> Luc này, nếu có thao tác với các nút khác vẫn được, nó chỉ đơn gửi các kí tự của những nút đó, thậm chí cả sự kết hợp của các nút điều khiển.
+> Lúc này, nếu có thao tác với các nút khác vẫn được, nó chỉ đơn giản gửi các kí tự của những nút đó, thậm chí cả sự kết hợp của các nút điều khiển.
 >
-> Và khi [nhả] hoàn toàn các nút điều khiển, nó cũng sẽ gửi 1 kí tự `S` để cho dừng xe.
+> Và khi [nhả] hoàn toàn các nút *"Điều khiển các hướng xe di chuyển"*, nó sẽ gửi 1 kí tự `S` để cho dừng xe.
 
 > ---
 
 > **Chế độ test GPS.**
 >
-> Lệnh này dành cho nhà phát triển App. Khi App gửi lệnh `$enterGPS;`, bo Arduino Uno sẽ vào chế độ giả lập GPS.
+> Lệnh này dành cho nhà phát triển App. Khi App gửi lệnh `$enterGPS\n`, bo Arduino Uno sẽ vào chế độ giả lập GPS.
 >
 > Trong chế độ này, xe sẽ hoàn toàn đứng yên, không nhận bất cứ tín hiệu điều khiển nào. Lúc này, xe chỉ đơn thuần gửi các *"dữ liệu giả"* của GPS về cho App qua Bluetooth.
 >
-> Để thoát khỏi chế độ này, App cần gửi lệnh `$exitGPS;`.
+> Để thoát khỏi chế độ này, App cần gửi lệnh `$exitGPS\n`.
 
-### Car (Uno) ↦ Phone (App)
+### Car (Uno) == Bluetooth ==> Phone (App)
 
 > **Quy ước gói dữ liệu được gửi lên App:**
 >

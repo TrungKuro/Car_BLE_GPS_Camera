@@ -28,8 +28,8 @@
 // "speed" là tốc độ quay Motor, đơn vị %, với độ phân giải 10%
 // "power" là công suất cấp cho Motor, đơn vị ~pwm, từ 0 - 255
 
-/* Hàm chuyển đổi Tốc độ sang Công suất */
-// byte convert_speed_to_power(byte speed);
+/* Hàm chuyển đổi công suất thành tốc độ */
+String convert_power_to_speed(byte power);
 
 /* ------------------------------ LED & BUZZER ----------------------------- */
 
